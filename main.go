@@ -15,6 +15,7 @@ func streamingUploadFile(params map[string]string, paramName, path string, w *io
 	defer file.Close()
 	defer w.Close()
 	writer := multipart.NewWriter(w)
+	_ = writer.SetBoundary("doofus")
 	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
 	if err != nil {
 		log.Fatal(err)
@@ -57,10 +58,11 @@ func main() {
 		"author":      "Matt Aimonetti",
 		"description": "A document with all the Go programming language secrets",
 	}
-	request, err := newfileUploadRequest("http://localhost:8080", extraParams, "file", "test.pdf")
+	request, err := newfileUploadRequest("http://localhost:8080", extraParams, "file", "products_no_header.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
+	request.Header.Set("Content-Type", "multipart/form-data; boundary=doofus")
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
